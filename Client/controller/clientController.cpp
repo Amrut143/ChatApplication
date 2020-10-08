@@ -2,9 +2,9 @@
 
 void ClientController::requestForConnection()
 {
-    clientSocket = client.connectToServer();
+    client_socket = client.connectToServer();
 
-    if (clientSocket < 0)
+    if (client_socket < 0)
     {
          exit(EXIT_FAILURE);
     }

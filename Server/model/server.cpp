@@ -1,6 +1,6 @@
 #include "server.h"
 
-int Server::getConnectedClientSocket() 
+int Server::establishListener() 
 { 
 	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) 
 	{ 
@@ -32,14 +32,10 @@ int Server::getConnectedClientSocket()
 	} else {
         return server_fd;
     } 
+}
 
-
-	if ((new_socket = accept(server_fd, (struct sockaddr *)&address, 
-					(socklen_t*)&addrlen)) < 0) 
-	{ 
-		perror("accept"); 
-		exit(EXIT_FAILURE); 
-	} else {
-        return new_socket;
-    } 
+int Server::acceptNewConnection()
+{
+	new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
+    return new_socket;
 }

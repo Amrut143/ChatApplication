@@ -19,5 +19,6 @@ class Server
 	int addrlen = sizeof(address); 
 
     public:
-        int getConnectedClientSocket(); 
+        int establishListener(); 
+        int acceptNewConnection();
 };

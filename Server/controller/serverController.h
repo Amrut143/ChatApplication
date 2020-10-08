@@ -5,6 +5,7 @@
 class ServerController
 {
     int sock_fd;
+    int newSock_fd;
     Server server;
     ServerView serverView;
 

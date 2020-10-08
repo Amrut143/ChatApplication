@@ -6,5 +6,6 @@ using namespace std;
 class ServerView
 {
     public:
-        void displayMsgToConnectedClients();
+        void displayServerListenMsg();
+        void displayConnectionAcceptMsg();
 };

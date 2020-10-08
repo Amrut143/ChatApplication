@@ -3,9 +3,10 @@
 
 class ClientController
 {
-public:
-    int clientSocket = 0;
+    int client_socket = 0;
     Client client;
     ClientView clientView;
-    void requestForConnection();
+
+    public:
+        void requestForConnection();
 };
