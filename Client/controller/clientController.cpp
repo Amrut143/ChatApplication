@@ -2,10 +2,12 @@
 
 void ClientController::requestForConnection()
 {
-    sock = client.connectToServer();
+    clientSocket = client.connectToServer();
 
-    if (sock < 0)
-        exit(EXIT_FAILURE);
+    if (clientSocket < 0)
+    {
+         exit(EXIT_FAILURE);
+    }
     clientView.displayMesseges();
 }
 
