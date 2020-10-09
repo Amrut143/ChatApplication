@@ -9,4 +9,6 @@ class ClientController
 
     public:
         void requestForConnection();
+        void sendMessege(int);
+        void receiveMessege(int);
 };
