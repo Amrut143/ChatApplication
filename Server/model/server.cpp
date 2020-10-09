@@ -39,3 +39,17 @@ int Server::acceptNewConnection()
 	new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
     return new_socket;
 }
+
+void Server::sendMessage(int sock)
+{
+	memset(msg, 0, sizeof msg);
+	cin.getline(msg, 1024);
+	send(sock ,msg ,strlen(msg) ,0); 
+}
+
+void Server::recieveMessage(int sock)
+{
+	memset(buffer, 0, sizeof buffer);
+	read(sock, buffer, 1024); 
+	printf("Client: %s\n", buffer ); 
+}

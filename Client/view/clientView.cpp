@@ -1,6 +1,6 @@
 #include "clientView.h"
 
-void ClientView::displayMesseges()
+void ClientView::displayMessages()
 {
     cout << "Connected with server. Sending data" << endl; 
 }

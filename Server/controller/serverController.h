@@ -1,4 +1,5 @@
 #pragma once
+#include <thread>
 #include "../model/server.h"
 #include "../view/serverView.h"
 
@@ -11,4 +12,6 @@ class ServerController
 
     public:
         void acceptClientSocket();
+        void sendMsg(int);
+        void recieveMsg(int);
 };

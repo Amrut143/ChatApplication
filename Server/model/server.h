@@ -17,8 +17,12 @@ class Server
 	struct sockaddr_in address; 
 	int opt = 1; 
 	int addrlen = sizeof(address); 
+    char msg[1024]; 
+    char buffer[1024] = {0};
 
     public:
         int establishListener(); 
         int acceptNewConnection();
+        void sendMessage(int);
+        void recieveMessage(int);
 };

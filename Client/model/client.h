@@ -12,8 +12,12 @@ using namespace std;
 
 class Client
 {
-public:    
-    int connectToServer();
-    void sendMessege(int);
-    void receiveMessege(int);
+
+    char msg[1024]; 
+    char buffer[1024] = {0};
+
+    public:    
+        int connectToServer();
+        void sendMessage(int);
+        void recieveMessage(int);
 };

@@ -5,5 +5,5 @@ using namespace std;
 class ClientView
 {
     public:
-        void displayMesseges();
+        void displayMessages();
 };
