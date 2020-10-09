@@ -14,4 +14,6 @@ class Client
 {
 public:    
     int connectToServer();
+    void sendMessege(int);
+    void receiveMessege(int);
 };

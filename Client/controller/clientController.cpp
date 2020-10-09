@@ -3,15 +3,10 @@
 
 void ClientController::sendMessege(int sock)
 {
-	char msg[1024]; 
-
 	while(true)
     {
-		memset(msg, 0, sizeof msg);
-		std::cin.getline(msg, 1024);
-		send(sock ,msg ,strlen(msg) ,0); 
-	}
-    
+		client.sendMessege(sock);
+	}  
 }
 
 void ClientController::receiveMessege(int sock)
@@ -20,9 +15,7 @@ void ClientController::receiveMessege(int sock)
 
 	while(true)
     {
-		memset(buffer, 0, sizeof buffer);
-		read(sock, buffer, 1024); 
-		printf("Server: %s\n", buffer ); 
+        client.receiveMessege(sock);
 	}
     
 }

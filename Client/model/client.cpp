@@ -27,3 +27,22 @@ int Client::connectToServer()
         return sock;
     }
 }
+
+
+void Client::sendMessege(int sock)
+{
+    char msg[1024]; 
+
+    memset(msg, 0, sizeof msg);
+    std::cin.getline(msg, 1024);
+	send(sock ,msg ,strlen(msg) ,0); 
+}
+
+void Client::receiveMessege(int sock)
+{
+    char buffer[1024] = {0}; 
+    
+    memset(buffer, 0, sizeof buffer);
+	read(sock, buffer, 1024); 
+	printf("Server: %s\n", buffer ); 
+}
