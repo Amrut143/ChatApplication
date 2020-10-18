@@ -1,23 +1,22 @@
+#pragma once
 #include <stdio.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
-#include <thread>
-#include<iostream>
+#include <signal.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <pthread.h>
+#include <iostream>
 
-#define PORT 8080
+#define PORT 7777
 
 using namespace std;
 
 class Client
 {
-
-    char msg[1024]; 
-    char buffer[1024] = {0};
-
-    public:    
+    public:
         int connectToServer();
-        void sendMessage(int);
-        void recieveMessage(int);
 };

@@ -1,55 +1,125 @@
 #include "server.h"
 
-int Server::establishListener() 
-{ 
-	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) 
-	{ 
-		perror("socket failed"); 
-		exit(EXIT_FAILURE); 
+int Server::getClientSocket()
+{
+    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    int opt = 1;
+    sockaddr_in serv_addr;
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_port = htons(PORT);
+
+    if(setsockopt(server_fd, SOL_SOCKET, (SO_REUSEPORT | SO_REUSEADDR), (char*)&opt,sizeof(opt)) < 0)
+    {
+		perror("ERROR: setsockopt failed");
+        exit(EXIT_FAILURE);
 	}
 
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT , &opt, sizeof(opt)))
-	{ 
-		perror("setsockopt"); 
-		exit(EXIT_FAILURE); 
-	} 
+    if(bind(server_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) 
+    {
+        perror("ERROR: Socket binding failed");
+        exit(EXIT_FAILURE);
+    }
 
-	address.sin_family = AF_INET; 
-	address.sin_addr.s_addr = INADDR_ANY; 
-	address.sin_port = htons( PORT ); 
+     if (listen(server_fd, 10) < 0) 
+    {
+        perror("ERROR: Socket listening failed");
+        exit(EXIT_FAILURE);
+	}
+    printf("Server Started Listening........\n");
 
-	if (bind(server_fd, (struct sockaddr *)&address, 
-								sizeof(address)) < 0) 
-	{ 
-		perror("bind failed"); 
-		exit(EXIT_FAILURE); 
-	} 
-    
-	if (listen(server_fd, 3) < 0) 
-    { 
-		perror("listen"); 
-		exit(EXIT_FAILURE); 
-	} else {
-        return server_fd;
-    } 
+	return server_fd;
 }
 
-int Server::acceptNewConnection()
+User* Server::acceptNewConnection(int sock_fd)
 {
-	new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
-    return new_socket;
+    struct sockaddr_in client_addr;
+	socklen_t client_len = sizeof(client_addr);
+	int client_fd = accept(sock_fd, (struct sockaddr*)&client_addr, &client_len);
+
+    User* user = new User();
+	user->address = client_addr;
+	user->sock_fd = client_fd;
+	user->user_id = user_id++;
+
+	return user;
 }
 
-void Server::sendMessage(int sock)
+void Server::addUser(User *user)
 {
-	memset(msg, 0, sizeof msg);
-	cin.getline(msg, 1024);
-	send(sock ,msg ,strlen(msg) ,0); 
+	pthread_mutex_lock(&clients_mutex);
+
+	for(int count = 0; count < MAX_USERS; ++count)
+    {
+		if(!users[count])
+        {
+			users[count] = user;
+			break;
+		}
+	}
+	pthread_mutex_unlock(&clients_mutex);
 }
 
-void Server::recieveMessage(int sock)
+void Server::removeUser(int user_id)
 {
-	memset(buffer, 0, sizeof buffer);
-	read(sock, buffer, 1024); 
-	printf("Client: %s\n", buffer ); 
+	pthread_mutex_lock(&clients_mutex);
+
+	for(int count = 0; count < MAX_USERS; ++count)
+    {
+		if(users[count])
+        {
+			if(users[count]->user_id == user_id)
+            {
+				users[count] = NULL;
+				break;
+			}
+		}
+	}
+	pthread_mutex_unlock(&clients_mutex);
 }
+
+void Server::sendMessage(char* message, int user_id)
+{
+	pthread_mutex_lock(&clients_mutex);
+
+	for(int count = 0; count < MAX_USERS; ++count)
+    {
+		if(users[count])
+        {
+			if(users[count]->user_id != user_id)
+            {
+				if(write(users[count]->sock_fd, message, strlen(message)) < 0)
+                {
+					perror("ERROR: write to descriptor failed");
+					break;
+				}
+			}
+		}
+	}
+	pthread_mutex_unlock(&clients_mutex);
+}
+
+void Server::sendMessageToParticularUser(char* s,const char* name)
+{
+	pthread_mutex_lock(&clients_mutex);
+
+	for(int count = 0; count < MAX_USERS; ++count)
+	{
+		if(users[count])
+		{
+			if ((users[count]->user_name.compare(name)) == 0 )
+			{
+				if(write(users[count]->sock_fd, s, strlen(s)) < 0)
+				{
+					perror("ERROR: write to descriptor failed");
+					break;
+				}
+			}
+		}
+	}
+	pthread_mutex_unlock(&clients_mutex);
+}
+
+
+
+

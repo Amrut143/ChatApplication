@@ -1,46 +1,99 @@
-#include "clientController.h"
+#include "../model/client.h"
 
+#define LENGTH 2048
 
-void ClientController::sendMsg(int sock)
+volatile sig_atomic_t flag = 0;
+int sockfd = 0;
+char name[32];
+
+void catch_ctrl_c_and_exit(int sig)
 {
-    while(true)
-    {
-	    client.sendMessage(sock);
-    }  
+    flag = 1;
 }
 
-void ClientController::recieveMsg(int sock)
+void* sendMsgHandler(void* arg)
 {
-    while(true)
+    char message[LENGTH] = {};
+    char buffer[LENGTH + 32] = {};
+
+    while(1)
     {
-        client.recieveMessage(sock);
+        fgets(message, LENGTH, stdin);
+        message[strlen(message) - 1] = '\0';
+
+        if (strcmp(message, "exit") == 0)
+        {
+		    break;
+        } else {
+            send(sockfd, message, strlen(message), 0);
+        }
+	    bzero(message, LENGTH);
+        bzero(buffer, LENGTH + 32);
     }
-    
+    catch_ctrl_c_and_exit(2);
+    return NULL;
 }
 
-void ClientController::requestForConnection()
+void* recvMsgHandler(void* arg)
 {
-    client_socket = client.connectToServer();
+    char message[LENGTH] = {};
 
-    if (client_socket < 0)
+    while (1) 
     {
-         exit(EXIT_FAILURE);
+	    int receive = recv(sockfd, message, LENGTH, 0);
+
+        if (receive > 0)
+        {
+            printf("%s\n", message);
+        } else {
+			break;
+		}
+		memset(message, 0, sizeof(message));
     }
-    clientView.displayMessages();
+    return NULL;
+}
 
-	thread send_thread (&ClientController::sendMsg, this, client_socket);
-	thread recv_thread (&ClientController::recieveMsg, this, client_socket);
+void requestForConnection()
+{
+    Client client;
+    signal(SIGINT, catch_ctrl_c_and_exit);
 
-	send_thread.join();
-	recv_thread.join();
+    printf("Enter your name: ");
+    fgets(name, 32, stdin);
 
-	close(client_socket);
+    sockfd = client.connectToServer();
+    send(sockfd, name, 32, 0);
+    printf("*****Welcome To ChatRoom*****\n");
+
+    pthread_t send_msg_thread;
+
+    if(pthread_create(&send_msg_thread, NULL, &sendMsgHandler, NULL) != 0)
+    {
+	    printf("ERROR: pthread\n");
+        exit(EXIT_FAILURE);
+	}
+	
+    pthread_t recv_msg_thread;
+
+    if(pthread_create(&recv_msg_thread, NULL, &recvMsgHandler, NULL) != 0)
+    {
+		printf("ERROR: pthread\n");
+		exit(EXIT_FAILURE);
+	}
+
+	while(1)
+    {
+		if(flag)
+        {
+			printf("\nBye\n");
+			break;
+        }
+	}
+	close(sockfd);
 }
 
 int main() 
 {
-    ClientController controller;
-
-    controller.requestForConnection();
-
-}
+    system("clear");
+    requestForConnection();
+}  

@@ -4,6 +4,7 @@ int Client::connectToServer()
 {
     int sock = 0;
     struct sockaddr_in serv_addr;
+
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         printf("\n Socket creation error \n"); 
@@ -24,22 +25,7 @@ int Client::connectToServer()
         printf("\nConnection Failed \n"); 
         return -1;
     } else {
+        printf("\nConnected with server. Sending data...\n");
         return sock;
     }
-}
-
-void Client::sendMessage(int sock)
-{
-
-    memset(msg, 0, sizeof msg);
-    cin.getline(msg, 1024);
-	send(sock ,msg ,strlen(msg) ,0); 
-}
-
-void Client::recieveMessage(int sock)
-{ 
-
-    memset(buffer, 0, sizeof buffer);
-	read(sock, buffer, 1024); 
-	printf("Server: %s\n", buffer ); 
 }
