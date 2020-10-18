@@ -6,8 +6,8 @@
 
 using namespace std;
 
-struct User
-{
+struct User {
+    
     struct sockaddr_in address;
     int sock_fd;
     int user_id;

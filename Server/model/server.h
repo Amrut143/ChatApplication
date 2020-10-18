@@ -22,8 +22,8 @@
 
 static int user_id = 10;
 
-class Server
-{
+class Server {
+    
     User *users[MAX_USERS];
     pthread_mutex_t clients_mutex = PTHREAD_MUTEX_INITIALIZER;
 

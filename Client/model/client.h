@@ -15,8 +15,8 @@
 
 using namespace std;
 
-class Client
-{
+class Client {
+    
     public:
         int connectToServer();
 };
