@@ -1,38 +1,21 @@
 #include "../model/server.h"
+#include "../model/onlineUsers.h"
+#include "../utility/serverUtility.h"
 #include <vector>
 #include <sstream>
 
 #define BUFFER_SIZE 2048
+#define AUTHENTICATE "AUTHENTICATE"
+#define VALID "0"
+#define INVALID "1"
 
-int client_count = 0;
 Server server;
 
-void* parse(char* buffer, char* message, char* name) {
-	int index = 0;
-	int i;
+void sendDataToClient(string message, int sock_fd) {
 
-	if (buffer[0] != '#' ) {
-		name[index] = ' ';
-      	return NULL;
-    }
-	
-	for ( i = 1; i < strlen(buffer); i++) {
-
-		if(buffer[i] != ' ') {
-			name[index++] = buffer[i];
-		} else {
-			name[index++] = '\0';
-			break;
-		}
-  	}
-	index = 0;
-	for ( ; i < strlen(buffer); i++) {
-
-		if(buffer[i] != '\0') {
-			message[index++] = buffer[i];
-		}
-  	}	
-	return NULL;
+	if(write(sock_fd, message.c_str(), message.size()) < 0) {
+		perror("ERROR: write to descriptor failed");
+	}
 }
 
 void* handleTCPClient(void* arg) {
@@ -40,17 +23,36 @@ void* handleTCPClient(void* arg) {
 	char buffer_to_all[BUFFER_SIZE];
     char message[BUFFER_SIZE];
 	char name[32];
+    char password[10];
 	int exit_flag = 0;
 
-	client_count++;
 	User* user = (User*)arg;
 
-	if(recv(user->sock_fd, buffer, 32, 0) <= 0 ) {
-		exit_flag = 1;
-	} else {
-		cout << buffer << endl;
-		server.sendMessage(buffer, user->user_id);
-	}
+    while(1) {
+
+        if(exit_flag) {
+            break;
+        }
+	    if(recv(user->sock_fd, buffer, 32, 0) <= 0 ) {
+		    exit_flag = 1;
+	    } else {
+		    cout << buffer << endl;
+	    }
+
+        vector<string> user_data = split(buffer, ' ');
+
+        if(user_data[0] == AUTHENTICATE ) {
+			if(validateUserNameAndPassword(user_data[1], user_data[2])) {
+				sendDataToClient(VALID, user->sock_fd);
+                user->user_name = user_data[1];
+                user->password = user_data[2];
+                addUser(user);
+				break;
+			} else {
+				sendDataToClient(INVALID, user->sock_fd);
+			}
+		}
+    }
 	bzero(buffer, BUFFER_SIZE);
 
 	while(1) {
@@ -65,22 +67,22 @@ void* handleTCPClient(void* arg) {
 			strcat(buffer_to_all, buffer);
 
 			if(strlen(buffer) > 0) {
-				parse(buffer, message, name);
+				parseCommand(buffer, message, name);
 				bzero(buffer, BUFFER_SIZE);
 			    strcpy(buffer, user->user_name.c_str());
 				strcat(buffer, " : ");
 				strcat(buffer, message);
 
 				if(name[0] == ' ') {
-					server.sendMessage(buffer_to_all, user->user_id);
+					sendMessage(buffer_to_all, user->user_id);
 				} else {
-					server.sendMessageToParticularUser(buffer, name);
+					sendMessageToParticularUser(buffer, name);
 				}
 			}
 		} else if (receive == 0 || strcmp(buffer, "exit") == 0){
 			sprintf(buffer, "%s has left", user->user_name.c_str());
             cout << buffer << endl;
-			server.sendMessage(buffer, user->user_id);
+			sendMessage(buffer, user->user_id);
 			exit_flag = 1;
 		} else {
 			printf("ERROR: -1\n");
@@ -91,7 +93,7 @@ void* handleTCPClient(void* arg) {
 	}
 
 	close(user->sock_fd);
-    server.removeUser(user->user_id);
+    removeUser(user->user_id);
     delete user;
     client_count--;
     pthread_detach(pthread_self());
@@ -106,7 +108,6 @@ void startServer() {
     while(true) {
         User* user = server.acceptNewConnection(socket);
 
-		server.addUser(user);
         pthread_create(&thread_id, NULL, &handleTCPClient, (void*)user);
 
         sleep(1);
