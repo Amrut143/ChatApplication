@@ -28,4 +28,5 @@ class DBOperation
 
     public:
         bool validateUserNameAndPassword(string, string);
+        void addUserToDB(string, string);
 };
