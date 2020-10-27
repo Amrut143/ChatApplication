@@ -61,3 +61,18 @@ void sendMessageToParticularUser(char* s,const char* name) {
 	}
 	pthread_mutex_unlock(&clients_mutex);
 }
+
+vector<string> getOnlineUsers(string name) {
+	pthread_mutex_lock(&clients_mutex);
+	vector<string> online_users;
+
+	for(int count = 0; count <MAX_USERS;++count) {
+		if(users[count]) {
+			if(users[count]->user_name != name) {
+				online_users.push_back(users[count]->user_name);
+			}
+		}
+	}
+	pthread_mutex_unlock(&clients_mutex);
+	return online_users;
+}
