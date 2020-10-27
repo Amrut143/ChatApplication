@@ -21,6 +21,12 @@ void sendDataToClient(string message, int sock_fd) {
 	}
 }
 
+void onlineUsers(string name, int socket) {
+	vector<string> onlineUsers = getOnlineUsers(name);
+	string users = splitOnlineUsers(onlineUsers);
+	sendDataToClient(users, socket);
+}
+
 void* handleTCPClient(void* arg) {
     char buffer[BUFFER_SIZE];
 	char buffer_to_all[BUFFER_SIZE];
@@ -74,23 +80,29 @@ void* handleTCPClient(void* arg) {
 		int receive = recv(user->sock_fd, buffer, BUFFER_SIZE, 0);
 
 		if (receive > 0) {
-			strcpy(buffer_to_all, user->user_name.c_str());
-			strcat(buffer_to_all, " : ");
-			strcat(buffer_to_all, buffer);
+			if(strcmp(buffer, "online") == 0) {
+				onlineUsers(user->user_name, user->sock_fd);	
+			}
+			else {
+				strcpy(buffer_to_all, user->user_name.c_str());
+				strcat(buffer_to_all, " : ");
+				strcat(buffer_to_all, buffer);
 
-			if(strlen(buffer) > 0) {
-				parseCommand(buffer, message, name);
-				bzero(buffer, BUFFER_SIZE);
-			    strcpy(buffer, user->user_name.c_str());
-				strcat(buffer, " : ");
-				strcat(buffer, message);
+				if(strlen(buffer) > 0) {
+					parseCommand(buffer, message, name);
+					bzero(buffer, BUFFER_SIZE);
+					strcpy(buffer, user->user_name.c_str());
+					strcat(buffer, " : ");
+					strcat(buffer, message);
 
-				if(name[0] == ' ') {
-					sendMessage(buffer_to_all, user->user_id);
-				} else {
-					sendMessageToParticularUser(buffer, name);
+					if(name[0] == ' ') {
+						sendMessage(buffer_to_all, user->user_id);
+					} else {
+						sendMessageToParticularUser(buffer, name);
+					}
 				}
 			}
+
 		} else if (receive == 0 || strcmp(buffer, "exit") == 0){
 			sprintf(buffer, "%s has left", user->user_name.c_str());
             cout << buffer << endl;
