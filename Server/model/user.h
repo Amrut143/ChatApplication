@@ -9,6 +9,6 @@ struct User {
     struct sockaddr_in address;
     int sock_fd;
     int user_id;
-    string user_name = "amrut";
-    string password = "1234";
+    string user_name;
+    string password;
 };

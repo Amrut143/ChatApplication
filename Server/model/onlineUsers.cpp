@@ -61,22 +61,3 @@ void sendMessageToParticularUser(char* s,const char* name) {
 	}
 	pthread_mutex_unlock(&clients_mutex);
 }
-
-bool validateUserNameAndPassword(string user_name, string password) {
-	bool exit_flag = false;
-	pthread_mutex_lock(&clients_mutex);
-
-	for(int count = 0; count < MAX_USERS; ++count) {
-		if(users[count]) {
-			if ((users[count]->user_name.compare(user_name)) == 0) {
-				if ((users[count]->password.compare(password)) == 0) {
-				    exit_flag = true;
-				    break;
-				}
-			}
-		}
-	}
-	pthread_mutex_unlock(&clients_mutex);
-	return exit_flag;
-}
-
