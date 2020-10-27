@@ -65,3 +65,27 @@ string DBOperation::getCollectionName(string sender, string reciever) {
 		return sender + reciever;
 	return reciever + sender;
 }
+
+
+vector<string> DBOperation::getUserMessages(string sender_name, string reciever_name) {
+	string collection_name = getCollectionName(sender_name, reciever_name);
+	auto collection = conn["UserDB"][collection_name];
+	auto cursor = collection.find({});
+	bsoncxx::document::element sender, reciever, msg;
+	vector<string> messages;
+
+	for(auto data : cursor) {
+		sender = data["Sender"];
+		msg = data["Message"];
+
+		string message;
+		if(sender_name == sender.get_utf8().value) {
+			message += "\033[1;31m" + string(sender.get_utf8().value) + " :" + "\033[0;33m" + string(msg.get_utf8().value) + "\033[0m\n";
+		}
+		else {
+			message += "\033[1;32mYou : \033[0;33m" + string(msg.get_utf8().value) + "\033[0m";
+		}
+		messages.push_back(message);
+	}
+	return messages;
+}

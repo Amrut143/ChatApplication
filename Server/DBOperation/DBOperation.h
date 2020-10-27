@@ -32,4 +32,5 @@ class DBOperation
         void addUserToDB(string, string);
         void addMessagesToDB(string, string, string, string);
         string getCollectionName(string, string); 
+        vector<string> getUserMessages(string, string);
 };
