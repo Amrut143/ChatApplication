@@ -45,8 +45,12 @@ void* handleTCPClient(void* arg) {
         vector<string> user_data = split(buffer, ' ');
 
 		if(user_data[0] == REGISTER ) {
-			db.addUserToDB(user_data[1], user_data[2]);
-			sendDataToClient(INVALID, user->sock_fd);
+			if(!db.isUserAlreadyExists(user_data[1])) {
+				db.addUserToDB(user_data[1], user_data[2]);
+				sendDataToClient(INVALID, user->sock_fd);
+			} else {
+				sendDataToClient(VALID, user->sock_fd);
+			}
 		}
 
         if(user_data[0] == AUTHENTICATE ) {

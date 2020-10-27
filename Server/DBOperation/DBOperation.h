@@ -27,6 +27,7 @@ class DBOperation
     mongocxx::client conn{mongocxx::uri{}};
 
     public:
+        bool isUserAlreadyExists(string);
         bool validateUserNameAndPassword(string, string);
         void addUserToDB(string, string);
 };

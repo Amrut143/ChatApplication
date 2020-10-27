@@ -1,5 +1,20 @@
 #include "DBOperation.h"
 
+bool DBOperation::isUserAlreadyExists(string userId) {
+	auto collection = conn["UserDB"]["UserInfo"];
+	auto cursor = collection.find({});
+	bsoncxx::document::element id;
+
+	for(auto data : cursor) {
+		id = data["UserID"];
+
+		if(string(id.get_utf8().value) == userId) {
+			return true;
+		}
+	}
+	return false;
+}
+
 bool DBOperation::validateUserNameAndPassword(string userId, string password) {
 	auto collection = conn["UserDB"]["UserInfo"];
 	auto cursor = collection.find({});
