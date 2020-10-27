@@ -1,6 +1,7 @@
 #include "../model/server.h"
 #include "../model/onlineUsers.h"
 #include "../utility/serverUtility.h"
+#include "../DBOperation/DBOperation.h"
 #include <vector>
 #include <sstream>
 
@@ -10,6 +11,7 @@
 #define INVALID "1"
 
 Server server;
+DBOperation db;
 
 void sendDataToClient(string message, int sock_fd) {
 
@@ -42,7 +44,7 @@ void* handleTCPClient(void* arg) {
         vector<string> user_data = split(buffer, ' ');
 
         if(user_data[0] == AUTHENTICATE ) {
-			if(validateUserNameAndPassword(user_data[1], user_data[2])) {
+			if(db.validateUserNameAndPassword(user_data[1], user_data[2])) {
 				sendDataToClient(VALID, user->sock_fd);
                 user->user_name = user_data[1];
                 user->password = user_data[2];
