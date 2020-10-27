@@ -3,23 +3,22 @@
 #define LENGTH 2048
 #define VALID "0"
 #define INVALID "1"
+#define REGISTRATION 2
+#define LOGIN 1
 
 
 volatile sig_atomic_t flag = 0;
 int sockfd = 0;
-char name[32];
 
 void catch_ctrl_c_and_exit(int sig) {
     flag = 1;
 }
 
-void sendDataToServer(string message, int sockfd)
-{
+void sendDataToServer(string message, int sockfd) {
         send(sockfd, message.c_str(), message.size() + 1, 0);
 }
 
-string readResponseFromServer(int sockfd)
-{
+string readResponseFromServer(int sockfd) {
     char buffer[LENGTH] = {};
 	int receive = recv(sockfd, buffer, LENGTH, 0);
 
@@ -69,13 +68,12 @@ void* recvMsgHandler(void* arg) {
     return NULL;
 }
 
-string login(int sockfd)
-{
+string login(int sockfd) {
     string user_name, password, auth;
 
-    cout << "Enter Your Registered Username: " << endl;
+    cout<< "\033[1;34mEnter Your Registered Username: \033[0m";
     cin >> user_name;
-    cout << "Enter Password: " << endl;
+    cout << "\033[1;34mEnter Password: \033[0m";
     cin >> password;
 
     auth = "AUTHENTICATE " + user_name + " " + password;
@@ -85,18 +83,71 @@ string login(int sockfd)
     return readResponseFromServer(sockfd);
 }
 
+string registration(int sockfd) {
+    string user_name, password, conformPwd, auth;
+
+    cout << "\033[1;34mEnter Username: \033[0m";
+    cin >> user_name;
+    cout << "\033[1;34mEnter Password: \033[0m";
+    cin >> password;
+
+    while(conformPwd != password)
+    {
+        cout << "\033[1;34mConform Password: \033[0m";
+        cin >> conformPwd;
+    }
+    auth = "REGISTER " + user_name + " " + password;
+
+    sendDataToServer(auth, sockfd);
+
+    return readResponseFromServer(sockfd);
+}
+
+bool registrationAndLogin(int sockfd) {
+    bool exit_flag = true;
+    int option; 
+
+    cout << "\033[1;33m********Select Option********\033[0m\n\n";
+    cout << "\033[1;35m1.Login \n2.Registration\033[0m\n\n";
+    cin >> option;
+    while(exit_flag) {
+        switch (option) {
+            case LOGIN:
+		        while(INVALID == login(sockfd)) {
+	    	        cout<<"\033[1;31mWrong Username Or Password\033[0m\n\n";
+		        }
+                system("clear");
+		        cout<<"\033[1;32mLogin Successfully......\033[0m\n\n";
+                exit_flag = false;
+                break;
+
+            case REGISTRATION:
+		        while(VALID == registration(sockfd)) {
+			        cout<<"\033[1;31mYour username has already been registered. Please try again\033[0m\n\n" << endl;
+		        }
+                system("clear");
+		        cout<<"\033[1;32mRegister Successfully.......\033[0m\n\n";
+                cout << "\033[1;33m********Login To Your Account********\033[0m\n\n";
+                option = LOGIN;
+                break;
+                
+            default:
+                cout << "Invalid Input" << endl;
+                exit_flag = false;
+                break;
+        }
+    }
+    return exit_flag;
+}
+
 void requestForConnection() {
     Client client;
     signal(SIGINT, catch_ctrl_c_and_exit);
 
-
     sockfd = client.connectToServer();
-    
-    while(INVALID == login(sockfd)) {
-	    cout<< "\033[1;31mWrong Username Or Password\033[0m\n\n";
-	}
-	cout<< "\033[1;32mLogin Successful.....\033[0m\n\n";
-    cout<< "\033[1;32m*****Welcome To ChatRoom*****\033[0m\n\n";
+
+    if(!registrationAndLogin(sockfd))
+        cout << "\033\t[1;33mWelcome To Chat App\033[0m\n\n";
 
     pthread_t send_msg_thread;
 
