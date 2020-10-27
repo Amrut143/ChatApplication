@@ -23,7 +23,8 @@ void sendDataToClient(string message, int sock_fd) {
 
 void onlineUsers(string name, int socket) {
 	vector<string> onlineUsers = getOnlineUsers(name);
-	string users = splitOnlineUsers(onlineUsers);
+	string users = splitUsers(onlineUsers);
+
 	sendDataToClient(users, socket);
 }
 
@@ -98,12 +99,17 @@ void* handleTCPClient(void* arg) {
 					if(name[0] == ' ') {
 						sendMessage(buffer_to_all, user->user_id);
 					} else {
-						sendMessageToParticularUser(buffer, name);
+						if (isUserOnline(name)) {
+							sendMessageToParticularUser(buffer, name);
+							db.addMessagesToDB(user->user_name, name, message, "seen");
+						} else {
+							sendMessageToParticularUser(buffer, name);
+							db.addMessagesToDB(user->user_name, name, message, "unseen");
+						}
 					}
 				}
 			}
-
-		} else if (receive == 0 || strcmp(buffer, "exit") == 0){
+		} else if (receive == 0 || strcmp(buffer, "exit") == 0) {
 			sprintf(buffer, "%s has left", user->user_name.c_str());
             cout << buffer << endl;
 			sendMessage(buffer, user->user_id);

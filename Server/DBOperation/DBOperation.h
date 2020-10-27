@@ -30,4 +30,6 @@ class DBOperation
         bool isUserAlreadyExists(string);
         bool validateUserNameAndPassword(string, string);
         void addUserToDB(string, string);
+        void addMessagesToDB(string, string, string, string);
+        string getCollectionName(string, string); 
 };

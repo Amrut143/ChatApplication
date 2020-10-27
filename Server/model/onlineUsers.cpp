@@ -76,3 +76,19 @@ vector<string> getOnlineUsers(string name) {
 	pthread_mutex_unlock(&clients_mutex);
 	return online_users;
 }
+
+bool isUserOnline(string name) {
+	pthread_mutex_lock(&clients_mutex);
+	bool flag = false;
+
+	for(int count = 0; count < MAX_USERS; ++count) {
+		if(users[count]) {
+			if(users[count]->user_name == name) {
+				flag = true;
+				break;
+			}
+		}
+	}
+	pthread_mutex_unlock(&clients_mutex);
+	return flag;
+}

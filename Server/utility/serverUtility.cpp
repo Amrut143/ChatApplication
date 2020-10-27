@@ -4,11 +4,10 @@ void* parseCommand(char* buffer, char* message, char* name) {
 	int index = 0;
 	int count;
 
-	if (buffer[0] != '#' ) {
+	if (buffer[0] != '#') {
 		name[index] = ' ';
       	return NULL;
     }
-	
 	for (count = 1; count < strlen(buffer); count++) {
 
 		if(buffer[count] != ' ') {
@@ -19,7 +18,7 @@ void* parseCommand(char* buffer, char* message, char* name) {
 		}
   	}
 	index = 0;
-	for (count = 1 ; count < strlen(buffer); count++) {
+	for ( ; count < strlen(buffer); count++) {
 
 		if(buffer[count] != '\0') {
 			message[index++] = buffer[count];
@@ -39,8 +38,8 @@ vector<string> split(const string &s, char delimeter) {
     return tokens;
 }
 
-string splitOnlineUsers(vector<string> users_list) {
-	string users = "\033[0;32mOnline Users\n";
+string splitUsers(vector<string> users_list) {
+	string users = "\033[0;32m\n";
 	string temp;
 
 	for(int count = 0; count < users_list.size(); ++count) {

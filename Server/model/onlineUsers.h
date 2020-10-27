@@ -14,3 +14,4 @@ void removeUser(int user_id);
 void sendMessage(char* message, int user_id);
 void sendMessageToParticularUser(char* s, const char* name);
 vector<string> getOnlineUsers(string name);
+bool isUserOnline(string name);

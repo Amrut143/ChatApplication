@@ -10,4 +10,4 @@ using namespace std;
 
 void* parseCommand(char*, char*, char*);
 vector<string> split(const string &s, char delimeter);
-string splitOnlineUsers(vector<string> users_list);
+string splitUsers(vector<string> users_list);
