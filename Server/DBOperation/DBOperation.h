@@ -33,4 +33,5 @@ class DBOperation
         void addMessagesToDB(string, string, string, string);
         string getCollectionName(string, string); 
         vector<string> getUserMessages(string, string);
+        vector<string> getUnseenMsg(string, string);
 };

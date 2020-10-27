@@ -68,6 +68,7 @@ string DBOperation::getCollectionName(string sender, string reciever) {
 
 
 vector<string> DBOperation::getUserMessages(string sender_name, string reciever_name) {
+
 	string collection_name = getCollectionName(sender_name, reciever_name);
 	auto collection = conn["UserDB"][collection_name];
 	auto cursor = collection.find({});
@@ -86,6 +87,33 @@ vector<string> DBOperation::getUserMessages(string sender_name, string reciever_
 			message += "\033[1;32mYou : \033[0;33m" + string(msg.get_utf8().value) + "\033[0m";
 		}
 		messages.push_back(message);
+	}
+	return messages;
+}
+
+vector<string> DBOperation::getUnseenMsg(string sender_name, string reciever_name) {
+
+	string collection_name = getCollectionName(sender_name, reciever_name);
+	auto collection = conn["UserDB"][collection_name];
+	auto cursor = collection.find({});
+	bsoncxx::document::element sender, reciever, msg, status;
+	vector<string> messages;
+
+	for(auto data : cursor) {
+		sender = data["Sender"];
+		msg = data["Message"];
+		status = data["Status"];
+		string message;
+
+		if(sender_name == sender.get_utf8().value) {
+			message += "\033[1;31m" + string(sender.get_utf8().value) + " :" + "\033[0;33m" + string(msg.get_utf8().value) + "\033[0m\n";
+		}
+		else {
+			message += "\033[1;32mYou :\033[0;33m" + string(msg.get_utf8().value) + "\033[0m";
+		}
+		if(string(status.get_utf8().value) == "unseen") {
+			messages.push_back(message);
+		}
 	}
 	return messages;
 }
