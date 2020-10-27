@@ -7,6 +7,7 @@
 
 #define BUFFER_SIZE 2048
 #define AUTHENTICATE "AUTHENTICATE"
+#define REGISTER "REGISTER"
 #define VALID "0"
 #define INVALID "1"
 
@@ -42,6 +43,11 @@ void* handleTCPClient(void* arg) {
 	    }
 
         vector<string> user_data = split(buffer, ' ');
+
+		if(user_data[0] == REGISTER ) {
+			db.addUserToDB(user_data[1], user_data[2]);
+			sendDataToClient(INVALID, user->sock_fd);
+		}
 
         if(user_data[0] == AUTHENTICATE ) {
 			if(db.validateUserNameAndPassword(user_data[1], user_data[2])) {
