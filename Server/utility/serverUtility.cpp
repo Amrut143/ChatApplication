@@ -38,3 +38,16 @@ vector<string> split(const string &s, char delimeter) {
     }
     return tokens;
 }
+
+string splitOnlineUsers(vector<string> users_list) {
+	string users = "\033[0;32mOnline Users\n";
+	string temp;
+
+	for(int count = 0; count < users_list.size(); ++count) {
+		temp = users_list[count];
+		users +=temp;
+		users += "\n";
+	}
+	users += "\033[0m";
+	return users;
+}
