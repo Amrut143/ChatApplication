@@ -28,6 +28,23 @@ void onlineUsers(string name, int socket) {
 	sendDataToClient(users, socket);
 }
 
+void showAllMessages(string reciever_name, string buffer , int socket) {
+	vector<string> data = split(buffer, ' ');
+	vector<string> messages = db.getUserMessages(data[1], reciever_name);
+	string users = splitUsers(messages);
+
+	sendDataToClient(users, socket);
+}
+
+void showUnseenMessages(string reciever_name, string buffer , int socket) {
+	vector<string> data = split(buffer, ' ');
+	vector<string> messages = db.getUnseenMsg(data[1], reciever_name);
+	string users = splitUsers(messages);
+
+	sendDataToClient(users, socket);
+}
+
+
 void* handleTCPClient(void* arg) {
     char buffer[BUFFER_SIZE];
 	char buffer_to_all[BUFFER_SIZE];
@@ -35,6 +52,7 @@ void* handleTCPClient(void* arg) {
 	char name[32];
     char password[10];
 	int exit_flag = 0;
+	size_t position;
 
 	User* user = (User*)arg;
 
@@ -84,6 +102,12 @@ void* handleTCPClient(void* arg) {
 			if(strcmp(buffer, "online") == 0) {
 				onlineUsers(user->user_name, user->sock_fd);	
 			}
+			else if((position = string(buffer).find("allmsg")) == 0) {
+				showAllMessages(user->user_name, buffer, user->sock_fd);
+			}
+			else if((position = string(buffer).find("unseenmsg")) == 0) {
+				showUnseenMessages(user->user_name, buffer, user->sock_fd);
+			}
 			else {
 				strcpy(buffer_to_all, user->user_name.c_str());
 				strcat(buffer_to_all, " : ");
@@ -110,7 +134,7 @@ void* handleTCPClient(void* arg) {
 				}
 			}
 		} else if (receive == 0 || strcmp(buffer, "exit") == 0) {
-			sprintf(buffer, "%s has left", user->user_name.c_str());
+			sprintf(buffer, "\033[1;41m%s has left\033[0m", user->user_name.c_str());
             cout << buffer << endl;
 			sendMessage(buffer, user->user_id);
 			exit_flag = 1;
