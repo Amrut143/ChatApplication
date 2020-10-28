@@ -66,7 +66,6 @@ string DBOperation::getCollectionName(string sender, string reciever) {
 	return reciever + sender;
 }
 
-
 vector<string> DBOperation::getUserMessages(string sender_name, string reciever_name) {
 
 	string collection_name = getCollectionName(sender_name, reciever_name);
@@ -81,10 +80,10 @@ vector<string> DBOperation::getUserMessages(string sender_name, string reciever_
 
 		string message;
 		if(sender_name == sender.get_utf8().value) {
-			message += "\033[1;31m" + string(sender.get_utf8().value) + " :" + "\033[0;33m" + string(msg.get_utf8().value) + "\033[0m\n";
+			message += "\033[1;36m" + string(sender.get_utf8().value) + " :" + "\033[0;33m" + string(msg.get_utf8().value) + "\033[0m";
 		}
 		else {
-			message += "\033[1;32mYou : \033[0;33m" + string(msg.get_utf8().value) + "\033[0m";
+			message += "\033[1;32mYou :\033[0;33m" + string(msg.get_utf8().value) + "\033[0m";
 		}
 		messages.push_back(message);
 	}
@@ -106,7 +105,7 @@ vector<string> DBOperation::getUnseenMsg(string sender_name, string reciever_nam
 		string message;
 
 		if(sender_name == sender.get_utf8().value) {
-			message += "\033[1;31m" + string(sender.get_utf8().value) + " :" + "\033[0;33m" + string(msg.get_utf8().value) + "\033[0m\n";
+			message += "\033[1;31m" + string(sender.get_utf8().value) + " :" + "\033[0;33m" + string(msg.get_utf8().value) + "\033[0m";
 		}
 		else {
 			message += "\033[1;32mYou :\033[0;33m" + string(msg.get_utf8().value) + "\033[0m";

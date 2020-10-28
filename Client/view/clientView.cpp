@@ -77,9 +77,11 @@ bool ClientView::registrationAndLogin(int sockfd) {
 void ClientView::displayMenu() {
     cout << "\033\t[1;33mWelcome To Chat App\033[0m\n\n";
     cout << "\033[3;42;30mONLINE-" << user_id << "\033[0m\t\t\n";
-    cout << "\033\n[1;33mUse Following Command\033[0m\n\n";
+    cout << "\033\n[1;36mUse Following Commands\033[0m\n\n";
     cout << "\033[1;35m -----------------------------------\n"
                  << "|[online] View online users         |\n"
+                 << "|[allmsg user_name] view all msgs   |\n"
+                 << "|[unseenmsg user_name] unseen msg   |\n"
                  << "|[#user_name msg] Msg to single user|\n"
                  << " -----------------------------------\n\033[0m";
 }
